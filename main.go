@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -25,23 +24,18 @@ func handler(wr http.ResponseWriter, req *http.Request) {
 	defer req.Body.Close()
 	fmt.Printf("%s | %s %s | time: %s\n", req.RemoteAddr, req.Method, req.URL, time.Now().String())
 
-	for key, values := range req.Header {
-		for _, value := range values {
-			fmt.Printf("%s: %s\n", key, value)
-		}
-	}
-
-	buf := &bytes.Buffer{}
-	buf.ReadFrom(req.Body)
-	fmt.Println(string(buf.Bytes()))
-
-	serveHTTP(wr, req)
-}
-
-func serveHTTP(wr http.ResponseWriter, req *http.Request) {
 	wr.Header().Add("Content-Type", "text/plain")
 	wr.WriteHeader(200)
 
-	fmt.Fprintln(wr, "")
+	headerTxt := ""
+	for key, values := range req.Header {
+		for _, value := range values {
+			headerTxt += fmt.Sprintf("%s: %s\n", key, value)
+		}
+	}
+	fmt.Fprintln(wr, headerTxt)
+
 	io.Copy(wr, req.Body)
+
+	fmt.Fprintln(wr, "")
 }
