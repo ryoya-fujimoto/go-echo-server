@@ -1,20 +1,19 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"time"
 )
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-	fmt.Printf("Echo server listening on port %s.\n", port)
-	err := http.ListenAndServe(":"+port, http.HandlerFunc(handler))
+	var bind = flag.String("bind", "localhost:8080", "Bind address")
+	flag.Parse()
+
+	fmt.Printf("Echo server listening on: %s.\n", *bind)
+	err := http.ListenAndServe(*bind, http.HandlerFunc(handler))
 	if err != nil {
 		panic(err)
 	}
